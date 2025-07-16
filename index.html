@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智聆工单助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/14.1.0/markdown-it.min.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gray-800 text-white p-4 flex-col hidden md:flex">
+            <button class="flex items-center justify-between w-full bg-transparent border border-gray-600 rounded-lg px-3 py-2 text-sm font-medium hover:bg-gray-700 transition-colors">
+                <span>+ 新对话</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+            </button>
+            <div class="flex-1 mt-4 space-y-2 overflow-y-auto">
+                <!-- Chat history items will be added here -->
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col bg-white">
+            <div id="chat-container" class="flex-1 w-full max-w-4xl mx-auto p-4 md:px-6 overflow-y-auto">
+                <!-- Welcome Screen / Chat Messages -->
+                <div id="welcome-screen" class="h-full flex flex-col items-center justify-center">
+                    <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mb-4">
+                       <svg class="w-10 h-10 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M22.0001 12.0001C22.0001 17.523 17.523 22.0001 12.0001 22.0001C6.47727 22.0001 2.00012 17.523 2.00012 12.0001C2.00012 6.47727 6.47727 2.00012 12.0001 2.00012C17.523 2.00012 22.0001 6.47727 22.0001 12.0001ZM12.0001 13.3334C11.2592 13.3334 10.6668 12.741 10.6668 12.0001C10.6668 11.2592 11.2592 10.6668 12.0001 10.6668C12.741 10.6668 13.3334 11.2592 13.3334 12.0001C13.3334 12.741 12.741 13.3334 12.0001 13.3334ZM7.3335 13.3334C6.59262 13.3334 6.00016 12.741 6.00016 12.0001C6.00016 11.2592 6.59262 10.6668 7.3335 10.6668C8.07437 10.6668 8.66683 11.2592 8.66683 12.0001C8.66683 12.741 8.07437 13.3334 7.3335 13.3334ZM16.6668 13.3334C15.926 13.3334 15.3335 12.741 15.3335 12.0001C15.3335 11.2592 15.926 10.6668 16.6668 10.6668C17.4077 10.6668 18.0002 11.2592 18.0002 12.0001C18.0002 12.741 17.4077 13.3334 16.6668 13.3334Z"></path></svg>
+                    </div>
+                    <h1 class="text-2xl font-semibold text-gray-700">今天能为您做些什么？</h1>
+                </div>
+            </div>
+
+            <footer class="p-4 md:px-6 w-full max-w-4xl mx-auto">
+                <form id="chat-form" class="relative">
+                    <div class="flex items-center bg-gray-100 border border-gray-300 rounded-xl shadow-sm overflow-hidden p-1.5 pr-2">
+                        <textarea id="message-input" class="flex-1 px-2 py-1.5 text-base bg-transparent resize-none outline-none" placeholder="给智聆发个消息..." rows="1"></textarea>
+                        <button id="submit-button" type="submit" class="bg-gray-300 text-white rounded-md w-7 h-7 flex items-center justify-center transition-colors duration-200" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                        </button>
+                    </div>
+                    <p class="text-xs text-center text-gray-400 mt-2">智聆工单助手可能会犯错。请核查重要信息。</p>
+                </form>
+            </footer>
+        </main>
+    </div>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
