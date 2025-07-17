@@ -14,15 +14,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let isFirstMessage = true;
 
-    // ---- 动态调整输入框高度 和 控制提交按钮状态 ----
-    messageInput.addEventListener('input', () => {
+    // --- 封装一个专门更新按钮状态的函数，让逻辑更清晰健壮 ---
+    function updateSubmitButtonState() {
+        const message = messageInput.value.trim();
         // 自适应高度
         messageInput.style.height = 'auto';
         const newHeight = Math.min(messageInput.scrollHeight, 200); // 限制最大高度
         messageInput.style.height = newHeight + 'px';
 
         // 控制按钮状态
-        if (messageInput.value.trim().length > 0) {
+        if (message.length > 0) {
             submitButton.disabled = false;
             submitButton.classList.remove('bg-gray-300');
             submitButton.classList.add('bg-black');
@@ -31,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitButton.classList.remove('bg-black');
             submitButton.classList.add('bg-gray-300');
         }
-    });
+    }
     
     // ---- 阻止Textarea默认的回车换行 ----
     messageInput.addEventListener('keydown', (e) => {
@@ -164,9 +165,14 @@ document.addEventListener('DOMContentLoaded', () => {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
     
-    // 触发一次input事件，确保初始按钮状态正确
-    messageInput.dispatchEvent(new Event('input'));
-    
+    // ---- 监听多个事件，确保在任何输入情况下都能触发状态更新 ----
+    messageInput.addEventListener('input', updateSubmitButtonState);
+    messageInput.addEventListener('keyup', updateSubmitButtonState);
+    messageInput.addEventListener('paste', updateSubmitButtonState);
+
+    // --- 页面加载后，立即执行一次，确保初始状态正确 ---
+    updateSubmitButtonState();
+
     // 注入加载动画样式
     const style = document.createElement('style');
     style.innerHTML = `
