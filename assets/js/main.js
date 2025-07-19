@@ -12,15 +12,16 @@ window.addEventListener('load', () => {
     const messageInput = document.getElementById('message-input');
     const submitButton = document.getElementById('submit-button');
     const welcomeScreen = document.getElementById('welcome-screen');
+    const chatContainer = document.getElementById('chat-container');
 
-    if (!chatForm || !messageInput || !submitButton || !welcomeScreen) {
+    if (!chatForm || !messageInput || !submitButton || !welcomeScreen || !chatContainer) {
         console.error('[DIAGNOSIS] CRITICAL ERROR: A required HTML element is missing. Check IDs.');
         return;
     }
     console.log('[DIAGNOSIS] Step 2: All required HTML elements found.');
 
     const API_URL = '/api/proxy';
-    const API_KEY = '60db0a4b-6261-4b00-8727-34890003e8d1';
+    // const API_KEY = '60db0a4b-6261-4b00-8727-34890003e8d1'; // 已移除，移到服务器端
     const conversationHistory = [];
     let isFirstMessage = true;
 
@@ -84,8 +85,8 @@ window.addEventListener('load', () => {
             console.log('[DIAGNOSIS] Calling API...');
             const response = await fetch(API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
-                body: JSON.stringify({ model: "doubao-pro-4k", messages: conversationHistory, stream: true })
+                headers: { 'Content-Type': 'application/json' }, // 移除Authorization
+                body: JSON.stringify({ model: "doubao-seed-1-6-250615", messages: conversationHistory, stream: true })
             });
             console.log('[DIAGNOSIS] API response received.');
 

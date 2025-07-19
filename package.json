@@ -1,0 +1,23 @@
+{
+  "name": "zhilinggongdan",
+  "version": "1.0.0",
+  "description": "智聆工单助手 - 基于豆包API的问答交互网页",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step required'",
+    "start": "vercel dev"
+  },
+  "keywords": [
+    "chat",
+    "ai",
+    "doubao",
+    "问答",
+    "工单助手"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+} 
