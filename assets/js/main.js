@@ -86,11 +86,12 @@ window.addEventListener('load', () => {
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ model: "doubao-seed-1-6-250615", messages: conversationHistory, stream: true })
+                body: JSON.stringify({ model: "doubao-seed-1-6-250615", messages: conversationHistory, stream: true }) // 恢复stream
             });
             console.log('[DIAGNOSIS] API response received. Status:', response.status);
             if (!response.ok) {
-              throw new Error(`API Error: ${response.status}`);
+              const errorText = await response.text();
+              throw new Error(`API Error: ${response.status} - ${errorText}`);
             }
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
@@ -101,20 +102,23 @@ window.addEventListener('load', () => {
                 const { done, value } = await reader.read();
                 if (done) break;
                 const chunk = decoder.decode(value, { stream: true });
-                console.log('[DIAGNOSIS] Chunk received:', chunk); // 日志
-                // 增强解析：处理data: 或纯文本
-                const lines = chunk.split('\n');
+                console.log('[DIAGNOSIS] Chunk received:', chunk);
+                // 增强解析（基于官方JSON结构）
+                const lines = chunk.split('\n').filter(line => line.trim());
                 for (const line of lines) {
                     let contentPart = '';
                     if (line.startsWith('data: ')) {
-                        const jsonString = line.substring(6);
+                        const jsonString = line.substring(6).trim();
                         if (jsonString === '[DONE]') break;
                         try {
                             const jsonData = JSON.parse(jsonString);
-                            contentPart = jsonData.choices?.[0]?.delta?.content || '';
-                        } catch (e) { console.error('[DIAGNOSIS] Parse error:', e); }
+                            contentPart = jsonData.choices?.[0]?.delta?.content || jsonData.choices?.[0]?.message?.content || '';
+                        } catch (e) { 
+                            console.error('[DIAGNOSIS] Parse error:', e);
+                            contentPart = jsonString; // fallback
+                        }
                     } else if (line.trim()) {
-                        contentPart = line; // fallback纯文本
+                        contentPart = line;
                     }
                     if (contentPart) {
                         aiResponse += contentPart;
@@ -127,13 +131,12 @@ window.addEventListener('load', () => {
                 conversationHistory.push({ role: 'assistant', content: aiResponse });
             } else {
                 console.log('[DIAGNOSIS] No response content');
-                aiContentContainer.textContent = '无响应，请重试或检查网络。';
+                aiContentContainer.textContent = '无响应，请检查API Key或模型（参考官方示例）。';
             }
-
         } catch (error) {
             console.error('[DIAGNOSIS] An error occurred during API call:', error);
             const errorElement = loadingElement.querySelector('.content-body');
-            if(errorElement) errorElement.textContent = '抱歉，服务暂时不可用。';
+            if(errorElement) errorElement.textContent = '抱歉，服务暂时不可用：' + error.message;
         } finally {
             loadingElement.classList.remove('loading');
         }
