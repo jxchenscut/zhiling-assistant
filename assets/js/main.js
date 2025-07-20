@@ -20,7 +20,7 @@ window.addEventListener('load', () => {
     }
     console.log('[DIAGNOSIS] Step 2: All required HTML elements found.');
 
-    const API_URL = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
+    const API_URL = '/api/proxy'; // 必须使用代理来避免CORS跨域问题
     const API_KEY = '60db0a4b-6261-4b00-8727-34890003e8d1'; // 警告：将API Key暴露在前端存在安全风险
     const conversationHistory = [];
     let isFirstMessage = true;
