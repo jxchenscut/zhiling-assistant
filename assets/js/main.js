@@ -20,8 +20,8 @@ window.addEventListener('load', () => {
     }
     console.log('[DIAGNOSIS] Step 2: All required HTML elements found.');
 
-    const API_URL = '/api/proxy';
-    // const API_KEY = '60db0a4b-6261-4b00-8727-34890003e8d1'; // 已移除，移到服务器端
+    const API_URL = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
+    const API_KEY = '60db0a4b-6261-4b00-8727-34890003e8d1'; // 警告：将API Key暴露在前端存在安全风险
     const conversationHistory = [];
     let isFirstMessage = true;
 
@@ -86,7 +86,12 @@ window.addEventListener('load', () => {
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ model: "doubao-seed-1-6-250615", messages: conversationHistory, stream: true }) // 恢复stream
+                body: JSON.stringify({ 
+                    model: "doubao-seed-1-6-250615", 
+                    messages: conversationHistory, 
+                    stream: true,
+                    apiKey: API_KEY // 在请求中加入API Key
+                })
             });
             console.log('[DIAGNOSIS] API response received. Status:', response.status);
             if (!response.ok) {

@@ -19,7 +19,14 @@ export async function onRequest(context) {
     const body = await request.json();
     const { model, messages, stream } = body;
     const DOUBAO_API_URL = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
-    const API_KEY = '60db0a4b-6261-4b00-8727-34890003e8d1';
+    // *** 重要：替换为您的有效API Key ***
+    // 1. 从VolcEngine控制台生成新Key（旧Key无效）。
+    // 2. 测试Key后，填入这里。
+    // 3. 为安全，建议用Cloudflare环境变量：process.env.API_KEY
+    const API_KEY = process.env.API_KEY || 'YOUR_VALID_API_KEY_HERE'; // 如果未设环境变量，用手动Key
+    if (!API_KEY || API_KEY === 'YOUR_VALID_API_KEY_HERE') {
+      throw new Error('Invalid API Key: 请配置有效Key');
+    }
     // 支持多模态messages（基于官方示例）
     const requestBody = { 
       model: model || 'doubao-seed-1-6-250615', // 官方示例模型

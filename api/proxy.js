@@ -17,11 +17,15 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { model, messages, stream } = req.body;
+    const { model, messages, stream, apiKey } = req.body;
     
     // 豆包API配置
     const DOUBAO_API_URL = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
-    const API_KEY = '60db0a4b-6261-4b00-8727-34890003e8d1'; // 已更新为用户提供的Key
+
+    if (!apiKey) {
+      res.status(400).json({ error: 'Bad Request', message: 'API key is missing in the request.' });
+      return;
+    }
 
     // 构建请求体（支持多模态）
     const requestBody = {
@@ -35,7 +39,7 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify(requestBody)
     });
