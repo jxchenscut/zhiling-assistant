@@ -32,7 +32,7 @@ export async function onRequest(context) {
       });
     }
 
-    const QWEN_API_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
+    const ARK_API_URL = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
 
     const requestBody = {
       model: model || 'qwen-plus',
@@ -40,7 +40,7 @@ export async function onRequest(context) {
       stream: stream ?? false
     };
 
-    const apiResponse = await fetch(QWEN_API_URL, {
+    const apiResponse = await fetch(ARK_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

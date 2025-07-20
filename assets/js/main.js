@@ -21,7 +21,7 @@ window.addEventListener('load', () => {
     console.log('[DIAGNOSIS] Step 2: All required HTML elements found.');
 
     const API_URL = '/api/proxy'; // Cloudflare Pages functions 默认路径
-    const API_KEY = 'sk-a05c6d503f2346adada30155e75da976'; // 通义千问API Key
+    const API_KEY = '60db0a4b-6261-4b00-8727-34890003e8d1'; // 豆包 Ark API Key
     const conversationHistory = [];
     let isFirstMessage = true;
 
@@ -87,7 +87,7 @@ window.addEventListener('load', () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    model: "qwen-plus", 
+                    model: "doubao-seed-1-6-250615", 
                     messages: conversationHistory, 
                     stream: true,
                     apiKey: API_KEY // 在请求中加入API Key
