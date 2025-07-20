@@ -19,23 +19,23 @@ export default async function handler(req, res) {
   try {
     const { model, messages, stream, apiKey } = req.body;
     
-    // 豆包API配置
-    const DOUBAO_API_URL = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
+    // 通义千问API配置
+    const QWEN_API_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
 
     if (!apiKey) {
       res.status(400).json({ error: 'Bad Request', message: 'API key is missing in the request.' });
       return;
     }
 
-    // 构建请求体（支持多模态）
+    // 构建请求体（OpenAI兼容格式）
     const requestBody = {
-      model: model || 'doubao-seed-1-6-250615',
+      model: model || 'qwen-plus',
       messages: messages,
       stream: stream || false
     };
 
-    // 转发请求到豆包API
-    const response = await fetch(DOUBAO_API_URL, {
+    // 转发请求到通义千问API
+    const response = await fetch(QWEN_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -45,7 +45,8 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
-      throw new Error(`豆包API错误: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(`通义千问API错误: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
     // 如果是流式响应
@@ -55,7 +56,6 @@ export default async function handler(req, res) {
       res.setHeader('Connection', 'keep-alive');
 
       const reader = response.body.getReader();
-      const encoder = new TextEncoder();
 
       while (true) {
         const { done, value } = await reader.read();

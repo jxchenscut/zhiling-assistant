@@ -21,7 +21,7 @@ window.addEventListener('load', () => {
     console.log('[DIAGNOSIS] Step 2: All required HTML elements found.');
 
     const API_URL = '/api/proxy'; // 必须使用代理来避免CORS跨域问题
-    const API_KEY = '66ccd395-652d-43bc-90ee-c02109b71e05'; // 更新为新的API Key
+    const API_KEY = 'sk-a05c6d503f2346adada30155e75da976'; // 通义千问API Key
     const conversationHistory = [];
     let isFirstMessage = true;
 
@@ -87,7 +87,7 @@ window.addEventListener('load', () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    model: "doubao-seed-1-6-thinking-250715", 
+                    model: "qwen-plus", 
                     messages: conversationHistory, 
                     stream: true,
                     apiKey: API_KEY // 在请求中加入API Key
