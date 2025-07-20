@@ -20,7 +20,7 @@ window.addEventListener('load', () => {
     }
     console.log('[DIAGNOSIS] Step 2: All required HTML elements found.');
 
-    const API_URL = '/api/proxy'; // 必须使用代理来避免CORS跨域问题
+    const API_URL = '/proxy'; // Cloudflare Pages functions 路径
     const API_KEY = 'sk-a05c6d503f2346adada30155e75da976'; // 通义千问API Key
     const conversationHistory = [];
     let isFirstMessage = true;
