@@ -21,7 +21,7 @@ window.addEventListener('load', () => {
     console.log('[DIAGNOSIS] Step 2: All required HTML elements found.');
 
     const API_URL = '/api/proxy'; // 必须使用代理来避免CORS跨域问题
-    const API_KEY = '6b3f9395-7901-4baa-aa56-1002efff322e'; // 警告：将API Key暴露在前端存在安全风险
+    const API_KEY = '66ccd395-652d-43bc-90ee-c02109b71e05'; // 更新为新的API Key
     const conversationHistory = [];
     let isFirstMessage = true;
 
@@ -87,7 +87,7 @@ window.addEventListener('load', () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    model: "doubao-seed-1-6-250615", 
+                    model: "doubao-seed-1-6-thinking-250715", 
                     messages: conversationHistory, 
                     stream: true,
                     apiKey: API_KEY // 在请求中加入API Key
