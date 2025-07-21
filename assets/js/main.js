@@ -89,8 +89,7 @@ window.addEventListener('load', () => {
                 body: JSON.stringify({ 
                     model: "doubao-seed-1-6-250615", 
                     messages: conversationHistory, 
-                    stream: true,
-                    apiKey: API_KEY // 在请求中加入API Key
+                    stream: true
                 })
             });
             console.log('[DIAGNOSIS] API response received. Status:', response.status);
