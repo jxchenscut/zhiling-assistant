@@ -34,16 +34,23 @@ export async function onRequest(context) {
     // 构建请求体
     const requestBody = {
       model: model || 'doubao-seed-1-6-250615',
-      messages: messages,
+      messages: messages.map(msg => {
+        console.log('Processing message:', JSON.stringify(msg, null, 2));
+        // 确保消息格式正确
+        return {
+          role: msg.role,
+          content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
+        };
+      }),
       stream: false  // 强制禁用流式输出
     };
 
     console.log('发送到豆包的请求:', JSON.stringify(requestBody, null, 2));
 
-    // 尝试不同的认证头格式
+    // 使用Bearer认证（和OpenAI SDK一致）
     const authHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${API_KEY}`  // 使用Bearer前缀
+      'Authorization': `Bearer ${API_KEY}`
     };
 
     console.log('使用的认证头:', JSON.stringify(authHeaders, null, 2));
