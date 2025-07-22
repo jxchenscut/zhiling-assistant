@@ -29,69 +29,100 @@ export async function onRequest(context) {
     const ARK_API_URL = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
     const API_KEY = '60db0a4b-6261-4b00-8727-34890003e8d1';
 
-    // 硬编码一个简单的测试请求（和你本地测试完全一样）
+    // 获取 Cloudflare 环境信息
+    const cfInfo = {
+      country: request.cf?.country,
+      city: request.cf?.city,
+      ip: request.headers.get('cf-connecting-ip'),
+      colo: request.cf?.colo,
+      userAgent: request.headers.get('user-agent')
+    };
+    
+    console.log('Cloudflare环境信息:', JSON.stringify(cfInfo, null, 2));
+
+    // 完全模拟 Python OpenAI SDK 的请求
     const testRequestBody = {
       model: 'doubao-seed-1-6-250615',
       messages: [
         {
-          role: 'user',
+          role: 'user', 
           content: '你好'
         }
-      ],
-      stream: false
+      ]
     };
 
-    console.log('测试请求体:', JSON.stringify(testRequestBody, null, 2));
+    // 尝试多种认证方式
+    const authMethods = [
+      { name: 'Bearer Token', headers: { 'Authorization': `Bearer ${API_KEY}` } },
+      { name: 'Direct Key', headers: { 'Authorization': API_KEY } },
+      { name: 'API Key Header', headers: { 'Api-Key': API_KEY } },
+      { name: 'X-API-Key Header', headers: { 'X-API-Key': API_KEY } }
+    ];
 
-    // 使用和 OpenAI SDK 完全一样的认证方式
-    const headers = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${API_KEY}`
-    };
+    let allResults = [];
 
-    console.log('认证头:', JSON.stringify(headers, null, 2));
+    for (const method of authMethods) {
+      try {
+        console.log(`尝试认证方式: ${method.name}`);
+        
+        const headers = {
+          'Content-Type': 'application/json',
+          'User-Agent': 'openai-python/1.0.0',
+          ...method.headers
+        };
 
-    // 发送请求
-    const apiResponse = await fetch(ARK_API_URL, {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify(testRequestBody)
-    });
-
-    console.log('API响应状态:', apiResponse.status);
-    console.log('API响应头:', JSON.stringify(Object.fromEntries(apiResponse.headers.entries()), null, 2));
-
-    const responseText = await apiResponse.text();
-    console.log('API响应内容:', responseText);
-
-    if (!apiResponse.ok) {
-      return new Response(
-        JSON.stringify({
-          error: 'Cloudflare网络测试',
-          status: apiResponse.status,
-          response: responseText,
-          testRequestBody: testRequestBody,
+        const response = await fetch(ARK_API_URL, {
+          method: 'POST',
           headers: headers,
-          message: '这是在Cloudflare环境下的测试，和本地Python测试完全相同的请求'
-        }, null, 2),
-        {
-          status: apiResponse.status,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-          }
+          body: JSON.stringify(testRequestBody)
+        });
+
+        const responseText = await response.text();
+        
+        allResults.push({
+          method: method.name,
+          status: response.status,
+          success: response.ok,
+          response: response.ok ? JSON.parse(responseText) : responseText,
+          headers: Object.fromEntries(response.headers.entries())
+        });
+
+        // 如果成功就返回结果
+        if (response.ok) {
+          console.log(`认证成功: ${method.name}`);
+          return new Response(responseText, {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*'
+            }
+          });
         }
-      );
+
+      } catch (error) {
+        allResults.push({
+          method: method.name,
+          error: error.message
+        });
+      }
     }
 
-    // 成功的话返回结果
-    return new Response(responseText, {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+    // 如果所有方法都失败，返回详细信息
+    return new Response(
+      JSON.stringify({
+        error: 'All authentication methods failed',
+        cloudflareInfo: cfInfo,
+        testResults: allResults,
+        message: '在Cloudflare环境中测试了多种认证方式，但都失败了。这可能是IP限制或网络环境问题。'
+      }, null, 2),
+      {
+        status: 401,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
       }
-    });
+    );
 
   } catch (error) {
     console.error('代理服务器错误:', error);

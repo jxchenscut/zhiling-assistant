@@ -17,60 +17,39 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { model, messages, stream, apiKey } = req.body;
+    const { model, messages, stream } = req.body;
     
-    // 通义千问API配置
-    const QWEN_API_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
+    // 豆包API配置
+    const ARK_API_URL = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
+    const API_KEY = '60db0a4b-6261-4b00-8727-34890003e8d1';
 
-    if (!apiKey) {
-      res.status(400).json({ error: 'Bad Request', message: 'API key is missing in the request.' });
-      return;
-    }
-
-    // 构建请求体（OpenAI兼容格式）
-    const requestBody = {
-      model: model || 'qwen-plus',
-      messages: messages,
-      stream: stream || false
+    // 硬编码测试请求
+    const testRequestBody = {
+      model: 'doubao-seed-1-6-250615',
+      messages: [{ role: 'user', content: '你好' }],
+      stream: false
     };
 
-    // 转发请求到通义千问API
-    const response = await fetch(QWEN_API_URL, {
+    console.log('Vercel代理 - 测试请求:', JSON.stringify(testRequestBody, null, 2));
+
+    // 转发请求到豆包API
+    const response = await fetch(ARK_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Authorization': `Bearer ${API_KEY}`
       },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify(testRequestBody)
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`通义千问API错误: ${response.status} ${response.statusText} - ${errorText}`);
+      console.error('豆包API错误:', errorText);
+      throw new Error(`豆包API错误: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
-    // 如果是流式响应
-    if (stream) {
-      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-      res.setHeader('Cache-Control', 'no-cache');
-      res.setHeader('Connection', 'keep-alive');
-
-      const reader = response.body.getReader();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        
-        const chunk = new TextDecoder().decode(value);
-        res.write(chunk);
-      }
-      
-      res.end();
-    } else {
-      // 非流式响应
-      const data = await response.json();
-      res.json(data);
-    }
+    const data = await response.json();
+    res.json(data);
 
   } catch (error) {
     console.error('代理服务器错误:', error);
