@@ -34,21 +34,18 @@ export async function onRequest(context) {
     // 构建请求体
     const requestBody = {
       model: model || 'doubao-seed-1-6-250615',
-      messages: messages.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      })),
+      messages: messages,
       stream: stream || false
     };
 
     console.log('发送到豆包的请求:', JSON.stringify(requestBody, null, 2));
 
-    // 转发请求到豆包API，使用 AK 前缀
+    // 转发请求到豆包API
     const apiResponse = await fetch(ARK_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `AK ${API_KEY}`  // 添加 AK 前缀
+        'Authorization': API_KEY  // 直接使用 API Key，不需要任何前缀
       },
       body: JSON.stringify(requestBody)
     });
@@ -72,7 +69,9 @@ export async function onRequest(context) {
       status: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Content-Type': stream ? 'text/event-stream' : 'application/json'
+        'Content-Type': stream ? 'text/event-stream' : 'application/json',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
       }
     });
 
