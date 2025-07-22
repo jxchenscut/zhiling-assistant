@@ -41,7 +41,7 @@ export async function onRequest(context) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`
+        'Authorization': API_KEY  // 移除 Bearer 前缀
       },
       body: JSON.stringify(requestBody)
     });
