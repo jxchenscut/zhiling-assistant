@@ -25,55 +25,54 @@ export async function onRequest(context) {
     const body = await request.json();
     console.log('收到前端请求:', JSON.stringify(body, null, 2));
     
-    const { model, messages, stream } = body;
-    
     // 豆包API配置
     const ARK_API_URL = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
     const API_KEY = '60db0a4b-6261-4b00-8727-34890003e8d1';
 
-    // 构建请求体
-    const requestBody = {
-      model: model || 'doubao-seed-1-6-250615',
-      messages: messages.map(msg => {
-        console.log('Processing message:', JSON.stringify(msg, null, 2));
-        // 确保消息格式正确
-        return {
-          role: msg.role,
-          content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
-        };
-      }),
-      stream: false  // 强制禁用流式输出
+    // 硬编码一个简单的测试请求（和你本地测试完全一样）
+    const testRequestBody = {
+      model: 'doubao-seed-1-6-250615',
+      messages: [
+        {
+          role: 'user',
+          content: '你好'
+        }
+      ],
+      stream: false
     };
 
-    console.log('发送到豆包的请求:', JSON.stringify(requestBody, null, 2));
+    console.log('测试请求体:', JSON.stringify(testRequestBody, null, 2));
 
-    // 使用Bearer认证（和OpenAI SDK一致）
-    const authHeaders = {
+    // 使用和 OpenAI SDK 完全一样的认证方式
+    const headers = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${API_KEY}`
     };
 
-    console.log('使用的认证头:', JSON.stringify(authHeaders, null, 2));
+    console.log('认证头:', JSON.stringify(headers, null, 2));
 
-    // 转发请求到豆包API
+    // 发送请求
     const apiResponse = await fetch(ARK_API_URL, {
       method: 'POST',
-      headers: authHeaders,
-      body: JSON.stringify(requestBody)
+      headers: headers,
+      body: JSON.stringify(testRequestBody)
     });
 
-    console.log('豆包API响应状态:', apiResponse.status);
-    
+    console.log('API响应状态:', apiResponse.status);
+    console.log('API响应头:', JSON.stringify(Object.fromEntries(apiResponse.headers.entries()), null, 2));
+
+    const responseText = await apiResponse.text();
+    console.log('API响应内容:', responseText);
+
     if (!apiResponse.ok) {
-      const errorText = await apiResponse.text();
-      console.error('豆包API错误:', errorText);
       return new Response(
         JSON.stringify({
-          error: 'API Error',
+          error: 'Cloudflare网络测试',
           status: apiResponse.status,
-          message: errorText,
-          requestBody: requestBody,
-          headers: authHeaders
+          response: responseText,
+          testRequestBody: testRequestBody,
+          headers: headers,
+          message: '这是在Cloudflare环境下的测试，和本地Python测试完全相同的请求'
         }, null, 2),
         {
           status: apiResponse.status,
@@ -85,24 +84,20 @@ export async function onRequest(context) {
       );
     }
 
-    // 非流式响应
-    const responseData = await apiResponse.json();
-    return new Response(
-      JSON.stringify(responseData),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
+    // 成功的话返回结果
+    return new Response(responseText, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
       }
-    );
+    });
 
   } catch (error) {
     console.error('代理服务器错误:', error);
     return new Response(
       JSON.stringify({
-        error: '服务器内部错误',
+        error: '网络请求失败',
         message: error.message,
         stack: error.stack
       }, null, 2),
