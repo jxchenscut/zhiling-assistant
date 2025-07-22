@@ -43,8 +43,7 @@ export async function onRequest(context) {
     // 尝试不同的认证头格式
     const authHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': API_KEY,
-      'X-API-Key': API_KEY
+      'Authorization': `Bearer ${API_KEY}`  // 使用Bearer前缀
     };
 
     console.log('使用的认证头:', JSON.stringify(authHeaders, null, 2));
