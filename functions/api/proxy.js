@@ -35,18 +35,24 @@ export async function onRequest(context) {
     const requestBody = {
       model: model || 'doubao-seed-1-6-250615',
       messages: messages,
-      stream: stream || false
+      stream: false  // 强制禁用流式输出
     };
 
     console.log('发送到豆包的请求:', JSON.stringify(requestBody, null, 2));
 
+    // 尝试不同的认证头格式
+    const authHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': API_KEY,
+      'X-API-Key': API_KEY
+    };
+
+    console.log('使用的认证头:', JSON.stringify(authHeaders, null, 2));
+
     // 转发请求到豆包API
     const apiResponse = await fetch(ARK_API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': API_KEY  // 直接使用 API Key，不需要任何前缀
-      },
+      headers: authHeaders,
       body: JSON.stringify(requestBody)
     });
 
@@ -55,33 +61,45 @@ export async function onRequest(context) {
     if (!apiResponse.ok) {
       const errorText = await apiResponse.text();
       console.error('豆包API错误:', errorText);
-      return new Response(errorText, {
-        status: apiResponse.status,
+      return new Response(
+        JSON.stringify({
+          error: 'API Error',
+          status: apiResponse.status,
+          message: errorText,
+          requestBody: requestBody,
+          headers: authHeaders
+        }, null, 2),
+        {
+          status: apiResponse.status,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          }
+        }
+      );
+    }
+
+    // 非流式响应
+    const responseData = await apiResponse.json();
+    return new Response(
+      JSON.stringify(responseData),
+      {
+        status: 200,
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*'
         }
-      });
-    }
-
-    // 流式或普通响应直接透传
-    const response = new Response(apiResponse.body, {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': stream ? 'text/event-stream' : 'application/json',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive'
       }
-    });
-
-    console.log('返回给前端的响应状态:', response.status);
-    return response;
+    );
 
   } catch (error) {
     console.error('代理服务器错误:', error);
     return new Response(
-      JSON.stringify({ error: '服务器内部错误', message: error.message }),
+      JSON.stringify({
+        error: '服务器内部错误',
+        message: error.message,
+        stack: error.stack
+      }, null, 2),
       {
         status: 500,
         headers: {

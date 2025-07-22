@@ -86,7 +86,7 @@ window.addEventListener('load', () => {
             const requestBody = { 
                 model: "doubao-seed-1-6-250615", 
                 messages: conversationHistory, 
-                stream: true
+                stream: false  // 禁用流式输出
             };
             console.log('[DIAGNOSIS] Request body:', JSON.stringify(requestBody, null, 2));
             
