@@ -83,14 +83,17 @@ window.addEventListener('load', () => {
         
         try {
             console.log('[DIAGNOSIS] Calling API...');
+            const requestBody = { 
+                model: "doubao-seed-1-6-250615", 
+                messages: conversationHistory, 
+                stream: true
+            };
+            console.log('[DIAGNOSIS] Request body:', JSON.stringify(requestBody, null, 2));
+            
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    model: "doubao-seed-1-6-250615", 
-                    messages: conversationHistory, 
-                    stream: true
-                })
+                body: JSON.stringify(requestBody)
             });
             console.log('[DIAGNOSIS] API response received. Status:', response.status);
             if (!response.ok) {

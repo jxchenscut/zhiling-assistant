@@ -23,6 +23,8 @@ export async function onRequest(context) {
 
   try {
     const body = await request.json();
+    console.log('收到前端请求:', JSON.stringify(body, null, 2));
+    
     const { model, messages, stream } = body;
     
     // 豆包API配置
@@ -32,23 +34,31 @@ export async function onRequest(context) {
     // 构建请求体
     const requestBody = {
       model: model || 'doubao-seed-1-6-250615',
-      messages: messages,
+      messages: messages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      })),
       stream: stream || false
     };
+
+    console.log('发送到豆包的请求:', JSON.stringify(requestBody, null, 2));
+    console.log('使用的API Key:', API_KEY);
 
     // 转发请求到豆包API
     const apiResponse = await fetch(ARK_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': API_KEY  // 移除 Bearer 前缀
+        'Authorization': API_KEY
       },
       body: JSON.stringify(requestBody)
     });
 
+    console.log('豆包API响应状态:', apiResponse.status);
+    
     if (!apiResponse.ok) {
       const errorText = await apiResponse.text();
-      console.error('API Error:', errorText);
+      console.error('豆包API错误:', errorText);
       return new Response(errorText, {
         status: apiResponse.status,
         headers: {
@@ -59,7 +69,7 @@ export async function onRequest(context) {
     }
 
     // 流式或普通响应直接透传
-    return new Response(apiResponse.body, {
+    const response = new Response(apiResponse.body, {
       status: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -67,10 +77,13 @@ export async function onRequest(context) {
       }
     });
 
+    console.log('返回给前端的响应状态:', response.status);
+    return response;
+
   } catch (error) {
-    console.error('Proxy Error:', error);
+    console.error('代理服务器错误:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal Server Error', message: error.message }),
+      JSON.stringify({ error: '服务器内部错误', message: error.message }),
       {
         status: 500,
         headers: {
