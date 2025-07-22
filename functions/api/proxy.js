@@ -42,14 +42,13 @@ export async function onRequest(context) {
     };
 
     console.log('发送到豆包的请求:', JSON.stringify(requestBody, null, 2));
-    console.log('使用的API Key:', API_KEY);
 
-    // 转发请求到豆包API
+    // 转发请求到豆包API，使用 AK 前缀
     const apiResponse = await fetch(ARK_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': API_KEY
+        'Authorization': `AK ${API_KEY}`  // 添加 AK 前缀
       },
       body: JSON.stringify(requestBody)
     });
